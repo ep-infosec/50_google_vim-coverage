@@ -1,0 +1,173 @@
+*coverage.txt*	Generic coverage reporter.
+                                                         *Coverage* *coverage*
+
+==============================================================================
+CONTENTS                                                   *coverage-contents*
+  1. Introduction.............................................|coverage-intro|
+  2. Usage....................................................|coverage-usage|
+  3. Configuration...........................................|coverage-config|
+  4. Commands..............................................|coverage-commands|
+  5. Functions............................................|coverage-functions|
+
+==============================================================================
+INTRODUCTION                                                  *coverage-intro*
+
+Coverage is a generic vim coverage layer plugin. It depends upon |Maktaba|.
+
+Everybody knows test coverage is important. It is not paramount and you should
+not strive to cover every line, rather to cover sensible usecases, but it is
+still important to spot untested branches and code paths.
+
+Coverage report uses three colors:
+
+  * red - line not covered
+  * partial - branch taken, but not in all paths
+  * green - fully covered
+
+See more about branch coverage on http://en.wikipedia.org/wiki/Code_coverage
+
+==============================================================================
+USAGE                                                         *coverage-usage*
+
+
+To use this plugin, you need at least one coverage provider registered with
+it. This plugin provides a generic way to show coverage report line-by-line,
+but it requires a source of the information. Any plugin wishing to be a
+coverage provider needs only to register itself using
+|coverage#AddProvider()|, and pass a |Dictionary| with the following
+|Dictionary-function| defined:
+IsAvailable(filename) - return 1 if plugin can handle the current file,
+  otherwise 0.
+GetCoverage(filename) - returns the coverage dict created by
+  |coverage#CreateReport()| that contains all coverage data.
+Name() - returns the name of the plugin.
+optional: GetCoverageAsync(filename, callback) - gets the coverage and once
+  done, invokes the provided callback with the coverage dict created by
+  |coverage#CreateReport()| that contains all coverage data.
+
+You can define a mapping to toggle showing coverage report. To use the default
+mapping of "<Leader>Ct", add the following to your vimrc:
+>
+  Glaive coverage plugin[mappings]
+<
+
+==============================================================================
+CONFIGURATION                                                *coverage-config*
+
+This plugin uses maktaba flags for configuration. Install Glaive
+(https://github.com/google/glaive) and use the |:Glaive| command to configure
+them.
+
+                                                       *coverage:partial_text*
+Text shown on the sign of a partially-covered line (e.g. unexplored branch).
+Default: '◊◊' `
+
+                                                     *coverage:uncovered_text*
+Text shown on the sign of a noncovered line (left of the line, in the corner).
+Default: '▵▵' `
+
+                                                       *coverage:covered_text*
+Text shown on the sign of a covered line (left of the line, in the corner).
+Default: '▴▴' `
+
+                                                    *coverage:partial_ctermbg*
+Background color for the partially covered lines when in cterm mode (non-GUI).
+Default: 'yellow' `
+
+                                                    *coverage:partial_ctermfg*
+Text color for the partially covered lines when in cterm mode (non-GUI).
+Default: 'black' `
+
+                                                      *coverage:partial_guibg*
+Background color for the partially covered lines when in GUI mode (e.g. gvim).
+Default: 'yellow' `
+
+                                                      *coverage:partial_guifg*
+Text color for the partially covered lines when in GUI mode (e.g. gvim).
+Default: 'black' `
+
+                                                    *coverage:covered_ctermbg*
+Background color for the covered lines when in cterm mode (non-GUI).
+Default: 'lightgreen' `
+
+                                                    *coverage:covered_ctermfg*
+Text color for the covered lines when in cterm mode (non-GUI).
+Default: 'black' `
+
+                                                      *coverage:covered_guibg*
+Background color for the covered lines when in GUI mode (e.g. gvim).
+Default: 'green' `
+
+                                                      *coverage:covered_guifg*
+Text color for the covered lines when in GUI mode (e.g. gvim).
+Default: 'black' `
+
+                                                  *coverage:uncovered_ctermbg*
+Background color for the uncovered lines when in cterm mode (non-GUI).
+Default: 'red' `
+
+                                                  *coverage:uncovered_ctermfg*
+Text color for the uncovered lines when in cterm mode (non-GUI).
+Default: 'white' `
+
+                                                    *coverage:uncovered_guibg*
+Background color for the uncovered lines when in GUI mode (e.g. gvim).
+Default: 'red' `
+
+                                                    *coverage:uncovered_guifg*
+Text color for the uncovered lines when in GUI mode (e.g. gvim).
+Default: 'white' `
+
+                                                   *coverage:plugin[commands]*
+Configures whether plugin/commands.vim should be loaded.
+Default: 1 `
+
+                                                   *coverage:plugin[coverage]*
+Configures whether plugin/coverage.vim should be loaded.
+Default: 1 `
+
+                                                   *coverage:plugin[mappings]*
+Configures whether plugin/mappings.vim should be loaded.
+Default: 0 `
+
+==============================================================================
+COMMANDS                                                   *coverage-commands*
+
+For toggling coverage view, the <PREFIX>t mapping is set. To automatically
+render coverage for available file types, create an autocmd, e.g.:
+>
+  augroup coverage
+    autocmd!
+    autocmd BufReadPost *.py,*.c,*.cc,*.h,*.java,*.go,*.js :CoverageShow
+  augroup END
+<
+
+This will render coverage for all mentioned filetypes, if available.
+
+:CoverageShow                                                  *:CoverageShow*
+  Show coverage report. If variable b:coverage_provider is set, the provider
+  from it will be used.
+
+:CoverageToggle                                              *:CoverageToggle*
+  Toggle coverage report.
+
+:CoverageShowDiff                                          *:CoverageShowDiff*
+  Show coverage report when the file changed, using vimdiff.
+
+:CoverageHide                                                  *:CoverageHide*
+  Hide coverage report.
+
+:CoverageStats                                                *:CoverageStats*
+  Print formatted stats, e.g. Coverage 88% (22/25 lines).
+
+==============================================================================
+FUNCTIONS                                                 *coverage-functions*
+
+coverage#CreateReport({covered}, {uncovered}, {partial}, [extra_dict])
+                                                     *coverage#CreateReport()*
+  Returns a coverage report compatible with |coverage|, for {covered},
+  {uncovered} and {partial} lines. Optional param [extra_dict] can be passed
+  in, which will be merged with the result.
+
+
+vim:tw=78:ts=8:ft=help:norl:
